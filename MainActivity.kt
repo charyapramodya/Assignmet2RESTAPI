@@ -1,102 +1,58 @@
-package com.example.map.uniLocations
+package com.example.assignment2
 
-import android.R
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.Transformations.map
-import com.example.map.data.dataSource
-import com.example.map.model.University
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.MarkerOptions
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import android.view.Menu
+import android.view.MenuItem
+import com.example.assignment2.databinding.ActivityMainBinding
 
-class UniLocations : Fragment(), AdapterView.OnItemSelectedListener {
-    private var _binding: FragmentUniLocationsBinding? = null
-    private var mapFragment: SupportMapFragment? = null
+class MainActivity : AppCompatActivity() {
 
-    private val binding get() = _binding!!
-    private val universities = dataSource().loadUniversities()
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var binding: ActivityMainBinding
 
-    private val callback = OnMapReadyCallback { googleMap ->
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        val selectedUniversityName: String = binding.spinnerUniversity.selectedItem as String
-        val selectedUniversity: List<University> = universities.filter { university -> university.name == selectedUniversityName }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-        (activity as AppCompatActivity).supportActionBar?.title = selectedUniversity[0].name
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val university = selectedUniversity[0].location
-        googleMap.addMarker(MarkerOptions().position(university).title(selectedUniversity[0].name))
-        googleMap.setMinZoomPreference(17f)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(university))
-    }
+        setSupportActionBar(binding.toolbar)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentUniLocationsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        appBarConfiguration = AppBarConfiguration(navController.graph)
+        setupActionBarWithNavController(navController, appBarConfiguration)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        populateSpinnerUniversity()
-
-        val spinnerUniversity = binding.spinnerUniversity
-        spinnerUniversity.onItemSelectedListener = this
-
-        mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-    }
-
-    private fun populateSpinnerUniversity() {
-        val universities: MutableList<String> = mutableListOf()
-        for (university in dataSource().loadUniversities()) {
-            universities.add(university.name)
+        binding.fab.setOnClickListener { view ->
+            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
         }
+    }
 
-        val adapter: ArrayAdapter<String>? = this.context?.let {
-            ArrayAdapter(
-                it,
-                R.layout.simple_spinner_item,
-                universities
-            )
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return when (item.itemId) {
+            R.id.action_settings -> true
+            else -> super.onOptionsItemSelected(item)
         }
-
-        adapter?.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
-
-        binding.spinnerUniversity.adapter = adapter
     }
 
-    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-        mapFragment?.getMapAsync(callback)
-    }
-
-    override fun onNothingSelected(p0: AdapterView<*>?) {
-        TODO("Not yet implemented")
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        return navController.navigateUp(appBarConfiguration)
+                || super.onSupportNavigateUp()
     }
 }
